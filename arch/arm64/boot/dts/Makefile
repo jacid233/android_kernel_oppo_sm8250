@@ -29,7 +29,7 @@
 #subdir-y += xilinx
 #subdir-y += zte
 #else
-subdir-y += qcom
+#subdir-y += qcom
 #endif
 
 
