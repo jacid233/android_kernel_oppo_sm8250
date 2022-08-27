@@ -1,0 +1,8 @@
+&sdhc_1 {
+        status = "disabled";
+};
+
+&sdhc_2 {
+        status = "disabled";
+};
+

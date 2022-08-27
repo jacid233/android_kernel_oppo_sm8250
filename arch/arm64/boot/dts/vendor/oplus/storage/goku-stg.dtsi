@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (C) 2018-2020 Oplus. All rights reserved.
+ */
+&sdhc_1 {
+        status = "disabled";
+};
+
+&sdhc_2 {
+        cd-gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+        status = "ok";
+};
+
