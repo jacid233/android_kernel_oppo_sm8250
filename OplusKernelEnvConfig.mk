@@ -172,7 +172,8 @@ endif
 ifeq ($(OPLUS_FEATURE_SECURE_KEYINTERFACESGUARD),yes)
 KBUILD_CFLAGS += -DOPLUS_DISALLOW_KEY_INTERFACES
 endif
-#ifdef OPLUS_FEATURE_POWERINFO_STANDBY
+
+ifdef OPLUS_FEATURE_POWERINFO_STANDBY
 inner_mk_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 inner_mk_dir := $(shell dirname $(inner_mk_path))
 inner_dir := $(wildcard $(inner_mk_dir)/../vendor/oplus/kernel/*/oplus_wakelock_profiler.h)
@@ -184,7 +185,7 @@ $(shell ln -sf $(inner_mk_dir)/../vendor/oplus/kernel/$(inner_wakelock_dir)/oplu
 else
 $(warning "ln the wakelock_profiler_h fail, mkis $(inner_mk_dir), dir is $(inner_dir), wakelock_dir is $(inner_wakelock_dir)")
 endif
-#endif /* OPLUS_FEATURE_POWERINFO_STANDBY */
+endif 
 
 ifeq ($(OPLUS_FEATURE_AOD_RAMLESS),yes)
 KBUILD_CFLAGS += -DOPLUS_FEATURE_AOD_RAMLESS
