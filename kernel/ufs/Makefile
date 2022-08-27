@@ -9,9 +9,9 @@ ufshcd-core-objs := ufshcd.o ufs-sysfs.o
 
 ufshcd-core-objs += ufs_latency_hist.o
 
-ifneq ($(OPLUS_FEATURE_PADL_STATISTICS),)
+
 ufshcd-core-objs += ufs_signal_quality.o
-endif # OPLUS_FEATURE_PADL_STATISTICS
+
 
 obj-$(CONFIG_UFSFEATURE) += ufsfeature.o
 obj-$(CONFIG_UFSHPB) += ufshpb.o
