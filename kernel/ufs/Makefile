@@ -6,9 +6,9 @@ obj-$(CONFIG_SCSI_UFS_QCOM) += ufs-qcom.o
 obj-$(CONFIG_SCSI_UFS_QCOM_ICE) += ufs-qcom-ice.o
 obj-$(CONFIG_SCSI_UFSHCD) += ufshcd-core.o
 ufshcd-core-objs := ufshcd.o ufs-sysfs.o
-ifneq ($(OPLUS_FEATURE_UFS_SHOW_LATENCY),)
+
 ufshcd-core-objs += ufs_latency_hist.o
-endif # OPLUS_FEATURE_UFS_SHOW_LATENCY
+
 ifneq ($(OPLUS_FEATURE_PADL_STATISTICS),)
 ufshcd-core-objs += ufs_signal_quality.o
 endif # OPLUS_FEATURE_PADL_STATISTICS
