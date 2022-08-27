@@ -2,6 +2,8 @@
 /*
  * linux/fs/ext4/ioctl.c
  *
+ * Copyright (C) 2020 Oplus. All rights reserved.
+ *
  * Copyright (C) 1993, 1994, 1995
  * Remy Card (card@masi.ibp.fr)
  * Laboratoire MASI - Institut Blaise Pascal
@@ -404,6 +406,10 @@ static int ext4_ioctl_setflags(struct inode *inode,
 	inode->i_ctime = current_time(inode);
 
 	err = ext4_mark_iloc_dirty(handle, inode, &iloc);
+#if defined(CONFIG_OPLUS_FEATURE_EXT4_ASYNC_DISCARD)
+        //add for ext4 async discard suppot
+	ext4_update_time(EXT4_SB(inode->i_sb));
+#endif
 flags_err:
 	ext4_journal_stop(handle);
 	if (err)
@@ -1053,6 +1059,11 @@ resizefs_out:
 		struct fstrim_range range;
 		int ret = 0;
 
+#if defined(CONFIG_OPLUS_FEATURE_EXT4_ASYNC_DISCARD)
+                //add for ext4 async discard suppot
+		if (test_opt2(sb, ASYNC_DISCARD))
+			return 0;
+#endif
 		if (!capable(CAP_SYS_ADMIN))
 			return -EPERM;
 
