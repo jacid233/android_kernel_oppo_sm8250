@@ -12,12 +12,12 @@ ufshcd-core-objs += ufs_latency_hist.o
 ifneq ($(OPLUS_FEATURE_PADL_STATISTICS),)
 ufshcd-core-objs += ufs_signal_quality.o
 endif # OPLUS_FEATURE_PADL_STATISTICS
-ifneq ($(OPLUS_FEATURE_UFSPLUS),)
+
 obj-$(CONFIG_UFSFEATURE) += ufsfeature.o
 obj-$(CONFIG_UFSHPB) += ufshpb.o
 obj-$(CONFIG_UFSTW) += ufstw.o
 obj-$(CONFIG_UFSHID) += ufshid.o
-endif #OPLUS_FEATURE_UFSPLUS
+
 obj-$(CONFIG_SCSI_UFSHCD_PCI) += ufshcd-pci.o
 obj-$(CONFIG_SCSI_UFSHCD_PLATFORM) += ufshcd-pltfrm.o
 obj-$(CONFIG_SCSI_UFS_TEST) += ufs_test.o
