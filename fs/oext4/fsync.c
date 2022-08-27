@@ -2,6 +2,7 @@
 /*
  *  linux/fs/ext4/fsync.c
  *
+ *  Copyright (C) 2020 Oplus. All rights reserved.
  *  Copyright (C) 1993  Stephen Tweedie (sct@redhat.com)
  *  from
  *  Copyright (C) 1992  Remy Card (card@masi.ibp.fr)
@@ -34,6 +35,11 @@
 
 #include <trace/events/ext4.h>
 
+#ifdef CONFIG_OPLUS_FEATURE_EXT4_FSYNC
+bool ext4_fsync_nobarrier = true;
+bool ext4_fsync_protect = false;
+#endif
+
 /*
  * If we're not journaling and this is a just-created file, we have to
  * sync our parent directory (if it was freshly created) since
@@ -44,28 +50,30 @@
  */
 static int ext4_sync_parent(struct inode *inode)
 {
-	struct dentry *dentry, *next;
+	struct dentry *dentry = NULL;
+	struct inode *next;
 	int ret = 0;
 
 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
 		return 0;
-	dentry = d_find_any_alias(inode);
-	if (!dentry)
-		return 0;
+	inode = igrab(inode);
 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
-
-		next = dget_parent(dentry);
+		dentry = d_find_any_alias(inode);
+		if (!dentry)
+			break;
+		next = igrab(d_inode(dentry->d_parent));
 		dput(dentry);
-		dentry = next;
-		inode = dentry->d_inode;
-
+		if (!next)
+			break;
+		iput(inode);
+		inode = next;
 		/*
 		 * The directory inode may have gone through rmdir by now. But
 		 * the inode itself and its blocks are still allocated (we hold
-		 * a reference to the inode via its dentry), so it didn't go
-		 * through ext4_evict_inode()) and so we are safe to flush
-		 * metadata blocks and the inode.
+		 * a reference to the inode so it didn't go through
+		 * ext4_evict_inode()) and so we are safe to flush metadata
+		 * blocks and the inode.
 		 */
 		ret = sync_mapping_buffers(inode->i_mapping);
 		if (ret)
@@ -74,7 +82,7 @@ static int ext4_sync_parent(struct inode *inode)
 		if (ret)
 			break;
 	}
-	dput(dentry);
+	iput(inode);
 	return ret;
 }
 
@@ -146,8 +154,14 @@ int ext4_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
 	}
 
 	commit_tid = datasync ? ei->i_datasync_tid : ei->i_sync_tid;
+#ifdef CONFIG_OPLUS_FEATURE_EXT4_FSYNC
+	if ((!ext4_fsync_nobarrier || ext4_fsync_protect)
+	    && (journal->j_flags & JBD2_BARRIER) &&
+	    !jbd2_trans_will_send_data_barrier(journal, commit_tid))
+#else
 	if (journal->j_flags & JBD2_BARRIER &&
 	    !jbd2_trans_will_send_data_barrier(journal, commit_tid))
+#endif
 		needs_barrier = true;
 	ret = jbd2_complete_transaction(journal, commit_tid);
 	if (needs_barrier) {
@@ -161,5 +175,9 @@ out:
 	if (ret == 0)
 		ret = err;
 	trace_ext4_sync_file_exit(inode, ret);
+#if defined(CONFIG_OPLUS_FEATURE_EXT4_ASYNC_DISCARD)
+        //add for ext4 async discard suppot
+	ext4_update_time(EXT4_SB(inode->i_sb));
+#endif
 	return ret;
 }
